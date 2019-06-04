@@ -9,7 +9,7 @@ import copy
 
 
 
-mainsocket = socket.Client()
+socketIO = socket.Client()
 url='localhost:4000'
 userName = 'joiceann'
 tournament_id = '12'
@@ -103,23 +103,23 @@ def human_board(board):
 def ix(row, col):
     return row * 8 + col
 #------------------------CLIENTESOCKET----------------------------------------------
-@mainsocket.on('connect')
+@socketIO.on('connect')
 def on_connect():
     print('Conectado')
-    mainsocket.emit('signin', {
+    socketIO.emit('signin', {
         'user_name': userName,
         'tournament_id': tournament_id,
         'user_role': 'player'
      })
 
 
-@mainsocket.on('ready')
+@socketIO.on('ready')
 def on_ready(data):
     jugada = movimientos(data['board'], data['player_turn_id'])
     la_juagada = jugada[0][random.randint(0, len(jugada[0])-1)]
     print(human_board(data['board']))
     print("\nRequesting move...")
-    mainsocket.emit('play', {
+    socketIO.emit('play', {
         "player_turn_id":data['player_turn_id'],
         "tournament_id":tournament_id,
         "game_id":data['game_id'],
@@ -127,14 +127,14 @@ def on_ready(data):
     })
 
 
-@mainsocket.on('finish')
+@socketIO.on('finish')
 def on_finish(data):
     print("Juego terminado")
 
-    mainsocket.emit('player_ready', {
+    socketIO.emit('player_ready', {
         "tournament_id":tournament_id,
         "game_id":data['game_id'],
         "player_turn_id":data['player_turn_id']
     })
 
-mainsocket.connect('http://localhost:4000')
+socketIO.connect('http://localhost:4000')
